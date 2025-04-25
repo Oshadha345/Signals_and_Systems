@@ -162,9 +162,9 @@ Connection to Quantum (Signals & States!) |	🔜
 
 ## 🧠 Author
 
-⚙️ Signalsmith: Oshadha Samarakoon
-Undergrad Engineer | Signal Jedi | Future Rocket Guy 🚀
-Always building, always simulating.
+>⚙️ Signalsmith: Oshadha Samarakoon
+  Undergrad Engineer | Signal Jedi | Future Rocket Guy 🚀
+  Always building, always simulating.
 
 ---
 
