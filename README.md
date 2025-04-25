@@ -2,10 +2,24 @@
 **Course Companion for EE257 – Signals & Systems**  
 *A Python-Powered, Math-Fueled, Visually-Driven Learning Repository*  
 
-![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)  
-![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue?logo=python)  
-![Maintained](https://img.shields.io/badge/maintained-yes-green)  
-![Built for Nerds](https://img.shields.io/badge/built%20for-nerds-black)
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" />
+  <img src="https://img.shields.io/badge/Made%20with-Python-blue?logo=python" />
+  <img src="https://img.shields.io/badge/maintained-yes-green" />
+  <img src="https://img.shields.io/badge/built%20for-nerds-black" />
+  <img src="https://img.shields.io/badge/course-EE257-blue" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/powered%20by-Colab-yellow?logo=google-colab" />
+  <img src="https://img.shields.io/badge/status-awesome-brightgreen" />
+  <img src="https://img.shields.io/badge/focus-visualization-critical" />
+  <img src="https://img.shields.io/badge/mode-project--based-orange" />
+  <img src="https://img.shields.io/badge/simulation-ready-purple?logo=python" />
+  <img src="https://img.shields.io/badge/nerd_level-🧠_💥_1000-black" />
+</p>
+
+
 
 ---
 
@@ -61,6 +75,7 @@ signals-and-systems/
 ├── images/                 # 📸 Graphs, plots, visuals
 │
 └── README.md               # 📖 You are here
+```
 
 ---
 
