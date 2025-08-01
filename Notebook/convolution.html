@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Convolution Visualizer</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 2em;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #ffffff;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #343a40;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-top: 1em;
+        }
+        h1 { font-size: 2em; }
+        h2 { font-size: 1.5em; margin-top: 2em; }
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2em;
+            margin-top: 2em;
+        }
+        .plot-container {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1em;
+            background: #fdfdfd;
+        }
+        .slider-container {
+            margin: 2em 0;
+            text-align: center;
+        }
+        #sliderLabel {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+        }
+        input[type="range"] {
+            width: 80%;
+            max-width: 600px;
+            margin-top: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Convolution Visualizer</h1>
+    <p style="text-align:center; font-size: 1.2em;">
+        Visualizing <strong>y(T) = (x * h)(T) = &int; x(&tau;) h(T-&tau;) d&tau;</strong>
+        <br>
+        For <strong>x(&tau;) = u(&tau;)</strong> and <strong>h(&tau;) = e<sup>-&tau;</sup>u(&tau;)</strong>
+    </p>
+
+    <div class="slider-container">
+        <div id="sliderLabel">Shift T: <span id="TValue">0.0</span></div>
+        <input type="range" id="sliderT" min="-5" max="10" step="0.1" value="0">
+    </div>
+
+    <div class="plot-grid">
+        <div class="plot-container">
+            <h2>1. Input Signal x(&tau;)</h2>
+            <div id="plot_x"></div>
+        </div>
+        <div class="plot-container">
+            <h2>2. Flipped & Shifted h(T-&tau;)</h2>
+            <div id="plot_h"></div>
+        </div>
+        <div class="plot-container">
+            <h2>3. Product x(&tau;) · h(T-&tau;)</h2>
+            <div id="plot_product"></div>
+        </div>
+        <div class="plot-container">
+            <h2>4. Convolution Output y(T)</h2>
+            <div id="plot_conv"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Configuration ---
+    const T_MIN = -5;
+    const T_MAX = 10;
+    const T_STEP = 0.1;
+    const NUM_POINTS = 1001;
+    const DT = (T_MAX - T_MIN) / (NUM_POINTS - 1);
+
+    // --- Time Axis and Signals ---
+    const tau = Array.from({length: NUM_POINTS}, (_, i) => T_MIN + i * DT);
+    const x = tau.map(t => t >= 0 ? 1 : 0); // x(τ) = u(τ)
+    const h = tau.map(t => t >= 0 ? Math.exp(-t) : 0); // h(τ) = e^(-τ)u(τ)
+
+    // --- Pre-compute Convolution ---
+    const y = new Array(tau.length).fill(0);
+    for (let i = 0; i < tau.length; i++) {
+        if (tau[i] >= 0) {
+            y[i] = 1 - Math.exp(-tau[i]); // Analytical solution for y(t)
+        }
+    }
+
+    // --- Plotly Layouts ---
+    const commonLayout = {
+        margin: { l: 50, r: 20, b: 40, t: 40 },
+        xaxis: { title: '&tau;', gridcolor: '#e9ecef', zerolinecolor: '#6c757d' },
+        yaxis: { title: 'Amplitude', gridcolor: '#e9ecef', zerolinecolor: '#6c757d' },
+        showlegend: false
+    };
+
+    // --- Plotting Function ---
+    function plotAll(T) {
+        document.getElementById("TValue").innerText = T.toFixed(1);
+
+        // Calculate derived signals for the current T
+        const h_flipped_shifted = tau.map(t => {
+            const val = T - t;
+            return val >= 0 ? Math.exp(-val) : 0;
+        });
+        const product = tau.map((_, i) => x[i] * h_flipped_shifted[i]);
+
+        // Find convolution value at the current T
+        const closestIndex = Math.round((T - T_MIN) / DT);
+        const convValue = (closestIndex >= 0 && closestIndex < y.length) ? y[closestIndex] : 0;
+
+        // --- Update Plots ---
+        Plotly.react("plot_x", [{ x: tau, y: x, type: 'scatter', mode: 'lines', line: { color: '#007bff' } }], commonLayout);
+
+        Plotly.react("plot_h", [{ x: tau, y: h_flipped_shifted, type: 'scatter', mode: 'lines', line: { color: '#28a745' } }], commonLayout);
+
+        Plotly.react("plot_product", [{
+            x: tau, y: product, type: 'scatter', mode: 'lines',
+            fill: 'tozeroy', fillcolor: 'rgba(220, 53, 69, 0.3)',
+            line: { color: '#dc3545' }
+        }], {
+            ...commonLayout,
+            annotations: [{
+                x: T, y: Math.max(...product) * 0.5 + 0.1,
+                text: `Area = ${convValue.toFixed(3)}`,
+                showarrow: false, font: { size: 14 }
+            }]
+        });
+
+        Plotly.react("plot_conv", [
+            { x: tau, y: y, type: 'scatter', mode: 'lines', line: { color: '#ffc107' }, name: 'y(T)' },
+            {
+                x: [T], y: [convValue], mode: 'markers+text', name: 'Current Value',
+                marker: { color: 'red', size: 12, symbol: 'diamond' },
+                text: [`y(${T.toFixed(1)}) = ${convValue.toFixed(3)}`],
+                textposition: 'top center', textfont: { size: 14, color: 'red' }
+            }
+        ], { ...commonLayout, xaxis: { ...commonLayout.xaxis, title: 'T' } });
+    }
+
+    // --- Initial Plot and Event Listener ---
+    plotAll(parseFloat(document.getElementById("sliderT").value));
+
+    document.getElementById("sliderT").addEventListener("input", e => {
+        plotAll(parseFloat(e.target.value));
+    });
+</script>
+
+</body>
+</html>

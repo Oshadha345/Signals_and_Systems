@@ -1,9 +1,5 @@
 import cmath
-
-#inputs 
-num = int(input())
-
-int_list = [int(input()) for _ in range(2*num)]
+import sys
 
 def split_into_chunks(num, base = 10000):
     """
@@ -183,22 +179,45 @@ def reconstruct_int(chunks, base =10000):
 
 
 
-for i in range(0,len(int_list),2):
+import sys
+import cmath
+
+def fast_io_handler():
+    """
+    Implements fast I/O handling for large inputs.
+    Reads all inputs at once and processes them efficiently.
+    """
+    # Fast input reading
+    lines = sys.stdin.readlines()
     
-    #construct the polynomial
-    a = split_into_chunks(int_list[i])
-    b = split_into_chunks(int_list[i+1])
+    # Parse number of test cases
+    num = int(lines[0])
     
-    #multiply the polynomials
-    c = mult_fft(a, b)
+    # Process inputs in pairs
+    results = []
+    line_idx = 1
     
-    #process the carry
-    c_processed = process_carry(c)
+    for i in range(num):
+        # Get each pair of numbers
+        a = int(lines[line_idx])
+        b = int(lines[line_idx + 1])
+        line_idx += 2
+        
+        # Process multiplication
+        a_chunks = split_into_chunks(a)
+        b_chunks = split_into_chunks(b)
+        c = mult_fft(a_chunks, b_chunks)
+        c_processed = process_carry(c)
+        result = reconstruct_int(c_processed)
+        
+        # Store result
+        results.append(str(result))
     
-    #reconstruct the integer
-    result = reconstruct_int(c_processed)
-    
-    #output the result
-    print(result)
+    # Fast output writing (all at once)
+    sys.stdout.write('\n'.join(results))
+
+# Replace your main loop with this call
+if __name__ == "__main__":
+    fast_io_handler()
 
 
